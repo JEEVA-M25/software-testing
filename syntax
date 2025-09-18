@@ -1,0 +1,134 @@
+### dropdown
+
+import org.openqa.selenium.support.ui.Select;
+
+WebElement dropdown = driver.findElement(By.id("cars"));
+Select select = new Select(dropdown);
+
+// By visible text
+select.selectByVisibleText("Volvo");
+
+// By value
+select.selectByValue("saab");
+
+// By index
+select.selectByIndex(2);**
+
+
+### hover
+
+import org.openqa.selenium.interactions.Actions;
+
+WebElement menu = driver.findElement(By.id("menu"));
+Actions actions = new Actions(driver);
+actions.moveToElement(menu).perform();
+
+
+
+### enter
+
+import org.openqa.selenium.Keys;
+
+WebElement input = driver.findElement(By.id("searchBox"));
+input.sendKeys("Selenium");
+input.sendKeys(Keys.ENTER);
+
+// -----or
+WebElement input = driver.findElement(By.id("searchBox"));
+
+// create Actions object
+Actions actions = new Actions(driver);
+
+// type text and press Enter using keyDown / keyUp
+actions.click(input)                // focus input
+       .sendKeys("Selenium")        // type text
+       .keyDown(Keys.ENTER)         // press Enter
+       .keyUp(Keys.ENTER)           // release Enter
+       .perform();
+
+### copy paste
+
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.Keys;
+
+// locate elements
+WebElement input1 = driver.findElement(By.id("input1"));
+WebElement input2 = driver.findElement(By.id("input2"));
+
+// type some text in input1
+input1.sendKeys("Hello Selenium");
+
+// create Actions object
+Actions actions = new Actions(driver);
+
+// Copy from input1
+actions.keyDown(input1, Keys.CONTROL)
+       .sendKeys("a")   // Select all
+       .sendKeys("c")   // Copy
+       .keyUp(Keys.CONTROL)
+       .perform();
+
+// Paste into input2 using keyDown
+actions.click(input2)           // focus on input2
+       .keyDown(Keys.CONTROL)   // hold CTRL
+       .sendKeys("v")           // paste
+       .keyUp(Keys.CONTROL)     // release CTRL
+       .perform();
+
+
+### scroll down
+
+
+WebElement element = driver.findElement(By.id("footer"));
+((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
+
+
+### switch to new window
+
+
+String parent = driver.getWindowHandle();
+Set<String> windows = driver.getWindowHandles();
+
+for (String win : windows) {
+    if (!win.equals(parent)) {
+        driver.switchTo().window(win);
+    }
+}
+
+
+### screenshot
+
+
+TakesScreenshot ts = (TakesScreenshot) driver;
+File src = ts.getScreenshotAs(OutputType.FILE);
+File dest = new File("screenshot/myScreenshot.png");
+FileUtils.copyFile(src, dest);
+
+// ---------- OR -------------
+ 
+TakesScreenshot ts = (TakesScreenshot) driver;
+File src = ts.getScreenshotAs(OutputType.FILE);
+
+File dest = new File("screenshot/myScreenshot.png");
+// create parent folder(s) if not exist
+dest.getParentFile().mkdirs();
+
+FileUtils.copyFile(src, dest);
+
+### Wait till an element to be clickable and visible
+
+
+// create wait object
+WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+// wait until element is visible
+WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("submitBtn")));
+
+// wait until element is clickable
+element = wait.until(ExpectedConditions.elementToBeClickable(By.id("submitBtn")));
+
+// now you can click
+element.click();
