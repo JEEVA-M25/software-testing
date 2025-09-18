@@ -1,0 +1,148 @@
+package runner;
+
+import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.events.EventFiringDecorator;
+import org.openqa.selenium.support.events.WebDriverListener;
+
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import com.aventstack.extentreports.ExtentReports;
+import com.aventstack.extentreports.ExtentTest;
+import com.aventstack.extentreports.Status;
+import com.aventstack.extentreports.reporter.ExtentSparkReporter;
+import com.aventstack.extentreports.reporter.configuration.Theme;
+
+import utils.EventHandler;
+
+import java.net.URL;
+import java.time.Duration;
+
+public class TestPage {
+
+    WebDriver driver;
+    ExtentReports reports;
+    public String validuser = "";
+    public String validpass = "";
+    public String invaliduser = "";
+    public String invalidpass = "";
+
+    @BeforeClass
+    public void generalreport() {
+        reports = new ExtentReports();
+        ExtentSparkReporter spark = new ExtentSparkReporter("reports/myReport.html");
+        spark.config().setDocumentTitle("OrangeHRM Project");
+        spark.config().setReportName("Testcase Report");
+        spark.config().setTheme(Theme.DARK);
+        reports.attachReporter(spark);
+    }
+
+    @BeforeMethod
+    public void setup() {
+        try {
+            // Load test data from Excel
+            XSSFWorkbook workbook = new XSSFWorkbook("testdata/Data.xlsx");
+            Sheet sheet = workbook.getSheet("Sheet1");
+
+            Row row1 = sheet.getRow(1); // valid creds
+            Row row2 = sheet.getRow(2); // invalid creds
+
+            Cell cell1 = row1.getCell(0); // valid username
+            Cell cell2 = row1.getCell(1); // invalid username
+            Cell cell3 = row2.getCell(0); // valid password
+            Cell cell4 = row2.getCell(1); // invalid password
+
+            validuser = cell1.getStringCellValue();
+            invaliduser = cell2.getStringCellValue();
+            validpass = cell3.getStringCellValue();
+            invalidpass = cell4.getStringCellValue();
+
+            // Setup WebDriver
+            driver = new RemoteWebDriver(new URL("http://localhost:4444"), new ChromeOptions());
+            driver.manage().window().maximize();
+            driver.get("https://opensource-demo.orangehrmlive.com/");
+            driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(15));
+            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(15));
+
+            WebDriverListener listener = new EventHandler();
+            driver = new EventFiringDecorator<>(listener).decorate(driver);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testcase1() {
+        try {
+            ExtentTest test1 = reports.createTest("OrangeHRM testcase 1");
+
+            WebElement username = driver.findElement(By.xpath("//input[@name='username']"));
+            username.sendKeys(validuser);
+            test1.log(Status.PASS, "username is valid and logged in successfully");
+
+            Thread.sleep(2000);
+
+            WebElement password = driver.findElement(By.xpath("//input[@name='password']"));
+            password.sendKeys(validpass);
+
+            Thread.sleep(2000);
+
+            WebElement login = driver.findElement(By.xpath("//button[text()=' Login ']"));
+            login.click();
+
+            Thread.sleep(2000);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testcase2() {
+        try {
+            ExtentTest test1 = reports.createTest("OrangeHRM testcase 2");
+
+            WebElement username2 = driver.findElement(By.xpath("//input[@name='username']"));
+            username2.sendKeys(invaliduser);
+            Thread.sleep(2000);
+
+            test1.log(Status.FAIL, "username is invalid please enter the valid username");
+
+            WebElement password2 = driver.findElement(By.xpath("//input[@name='password']"));
+            password2.sendKeys(invalidpass);
+
+            Thread.sleep(2000);
+
+            WebElement login2 = driver.findElement(By.xpath("//button[text()=' Login ']"));
+            login2.click();
+
+            Thread.sleep(2000);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @AfterMethod
+    public void teardown() {
+        driver.quit();
+    }
+
+    @AfterClass
+    public void finaltest() {
+        reports.flush();
+    }
+}
