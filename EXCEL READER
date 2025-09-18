@@ -1,0 +1,126 @@
+package runner;
+
+import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.events.EventFiringDecorator;
+import org.openqa.selenium.support.events.WebDriverListener;
+
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import utils.EventHandler;
+
+import java.net.URL;
+import java.net.MalformedURLException;
+import java.time.Duration;
+
+public class TestPage {
+
+    WebDriver driver;
+    public String validuser = "";
+    public String validpass = "";
+    public String invaliduser = "";
+    public String invalidpass = "";
+
+    @BeforeClass
+    public void beforeAll() {
+        System.out.println("=== Starting Test Execution ===");
+    }
+
+    @BeforeMethod
+    public void setup() throws MalformedURLException {
+        try {
+            // 🔹 Read credentials from Excel
+            XSSFWorkbook workbook = new XSSFWorkbook("testdata/Data.xlsx");
+            Sheet sheet = workbook.getSheet("Sheet1");
+
+            Row row1 = sheet.getRow(1);
+            Row row2 = sheet.getRow(2);
+
+            validuser = row1.getCell(0).getStringCellValue();
+            validpass = row2.getCell(0).getStringCellValue();
+            invaliduser = row1.getCell(1).getStringCellValue();
+            invalidpass = row2.getCell(1).getStringCellValue();
+
+            workbook.close();
+
+            // 🔹 Launch browser (Selenium Grid or standalone)
+            driver = new RemoteWebDriver(new URL("http://localhost:4444"), new ChromeOptions());
+            driver.manage().window().maximize();
+            driver.get("https://opensource-demo.orangehrmlive.com/");
+            driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(15));
+            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(15));
+
+            // 🔹 Add listener for logging events
+            WebDriverListener listener = new EventHandler();
+            driver = new EventFiringDecorator<>(listener).decorate(driver);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testcase1_validLogin() {
+        try {
+            System.out.println("Running testcase1: Valid login scenario");
+            WebElement username = driver.findElement(By.xpath("//input[@name='username']"));
+            username.sendKeys(validuser);
+
+            WebElement password = driver.findElement(By.xpath("//input[@name='password']"));
+            password.sendKeys(validpass);
+
+            WebElement login = driver.findElement(By.xpath("//button[text()=' Login ']"));
+            login.click();
+
+            Thread.sleep(2000);
+            System.out.println("✅ Valid login executed successfully");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testcase2_invalidLogin() {
+        try {
+            System.out.println("Running testcase2: Invalid login scenario");
+            WebElement username2 = driver.findElement(By.xpath("//input[@name='username']"));
+            username2.sendKeys(invaliduser);
+
+            WebElement password2 = driver.findElement(By.xpath("//input[@name='password']"));
+            password2.sendKeys(invalidpass);
+
+            WebElement login2 = driver.findElement(By.xpath("//button[text()=' Login ']"));
+            login2.click();
+
+            Thread.sleep(2000);
+            System.out.println("❌ Invalid login attempt executed");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @AfterMethod
+    public void teardown() {
+        if (driver != null) {
+            driver.quit();
+        }
+    }
+
+    @AfterClass
+    public void afterAll() {
+        System.out.println("=== Test Execution Completed ===");
+    }
+}
