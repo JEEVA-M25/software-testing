@@ -157,3 +157,11 @@ element.click();
                 e.printStackTrace();
             }
 
+### Verification using Assert
+
+// Title contains "hello"
+Assert.assertTrue(driver.getTitle().contains("hello"));
+
+// Element text contains "Welcome"
+WebElement element = driver.findElement(By.id("message"));
+Assert.assertTrue(element.getText().contains("Welcome"));
