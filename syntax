@@ -113,10 +113,14 @@ TakesScreenshot ts = (TakesScreenshot) driver;
 File src = ts.getScreenshotAs(OutputType.FILE);
 
 File dest = new File("screenshot/myScreenshot.png");
-// create parent folder(s) if not exist
-dest.getParentFile().mkdirs();
+
+// check if folder exists, if not create it
+if (!dest.getParentFile().exists()) {
+    dest.getParentFile().mkdirs();
+}
 
 FileUtils.copyFile(src, dest);
+
 
 ### Wait till an element to be clickable and visible
 
