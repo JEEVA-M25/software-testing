@@ -1,0 +1,15 @@
+TakesScreenshot ts = (TakesScreenshot) driver;
+File src = ts.getScreenshotAs(OutputType.FILE);
+File dest = new File("screenshot/myScreenshot.png");
+FileUtils.copyFile(src, dest);
+
+
+TakesScreenshot ts = (TakesScreenshot) driver;
+File src = ts.getScreenshotAs(OutputType.FILE);
+File dest = new File("screenshot/myScreenshot.png");
+
+if (!dest.getParentFile().exists()) {
+    dest.getParentFile().mkdirs();
+}
+
+FileUtils.copyFile(src, dest);
