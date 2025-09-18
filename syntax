@@ -132,3 +132,24 @@ element = wait.until(ExpectedConditions.elementToBeClickable(By.id("submitBtn"))
 
 // now you can click
 element.click();
+
+### disable notifications
+ ------go to Base class,  openBrowser mothod add these
+ if ("remote".equalsIgnoreCase(executionType)) {
+            URL gridUrl;
+            try {
+                gridUrl = new URL(prop.getProperty("gridurl"));
+                ChromeOptions options = new ChromeOptions();
+                options.addArguments("--disable-blink-features=AutomationControlled");
+                options.addArguments("--no-sandbox");
+                options.addArguments("--disable-dev-shm-usage");
+                options.addArguments("--remote-allow-origins=*");
+                options.addArguments("--disable-gpu");
+                options.addArguments("--disable-notifications");
+                
+                driver = new RemoteWebDriver(gridUrl, options);
+            } catch (MalformedURLException e) {
+
+                e.printStackTrace();
+            }
+
