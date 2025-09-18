@@ -1,0 +1,14 @@
+ // utils/LoggerHandler
+ public static void initLog4j() {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
+            String timestamp = sdf.format(new Date());
+        
+            // Create the appender manually
+            DailyRollingFileAppender appender = new DailyRollingFileAppender();
+            appender.setFile("logs/logfile_" + timestamp + ".logs");
+            appender.setDatePattern("'.'yyyy-MM-dd");
+            appender.setLayout(new PatternLayout("%p %d %c %M - %m%n"));
+            appender.activateOptions();
+        
+            Logger.getRootLogger().addAppender(appender);
+        }
