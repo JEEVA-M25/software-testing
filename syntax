@@ -165,3 +165,14 @@ Assert.assertTrue(driver.getTitle().contains("hello"));
 // Element text contains "Welcome"
 WebElement element = driver.findElement(By.id("message"));
 Assert.assertTrue(element.getText().contains("Welcome"));
+
+
+#### Alert
+
+driver.findElement(By.xpath("//button[text()='Click for JS Confirm']")).click();
+Alert alert1 = driver.switchTo().alert();
+alert1.accept();
+
+driver.findElement(By.xpath("//button[text()='Click for JS Confirm']")).click();
+Alert alert2 = driver.switchTo().alert();
+alert2.dismiss();
